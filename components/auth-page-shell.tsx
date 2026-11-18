@@ -37,7 +37,9 @@ export function AuthPageShell({
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
 
-            <div className="mt-8">{children}</div>
+            <div className="mt-7 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm shadow-slate-900/[0.04] sm:p-7">
+              {children}
+            </div>
 
             <div className="mt-7 border-t border-slate-200 pt-5 text-center text-sm text-slate-600">
               {footer}
