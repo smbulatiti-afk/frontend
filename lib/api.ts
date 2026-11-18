@@ -3,6 +3,15 @@ import { API_URL } from "./config";
 
 type ApiResponse<T> = T;
 
+export type Position = {
+  id: string | number;
+  positionCode: string;
+  positionName: string;
+  createdAt: string;
+};
+
+export type PositionInput = Pick<Position, "positionCode" | "positionName">;
+
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
@@ -66,4 +75,46 @@ export function registerUser(payload: {
 
 export function getCurrentUser() {
   return apiRequest<{ user: AuthUser }>("/auth/me").then(({ user }) => user);
+}
+
+export async function getPositions() {
+  const positions = await apiRequest<unknown>("/positions");
+
+  const isPosition = (position: unknown): position is Position =>
+    typeof position === "object" &&
+    position !== null &&
+    "id" in position &&
+    (typeof position.id === "string" || typeof position.id === "number") &&
+    "positionCode" in position &&
+    typeof position.positionCode === "string" &&
+    "positionName" in position &&
+    typeof position.positionName === "string" &&
+    "createdAt" in position &&
+    typeof position.createdAt === "string";
+
+  if (!Array.isArray(positions) || !positions.every(isPosition)) {
+    throw new Error("The positions API returned data in an unexpected format.");
+  }
+
+  return positions;
+}
+
+export function createPosition(position: PositionInput) {
+  return apiRequest<unknown>("/positions", {
+    method: "POST",
+    body: JSON.stringify(position),
+  });
+}
+
+export function updatePosition(id: Position["id"], position: PositionInput) {
+  return apiRequest<unknown>(`/positions/${encodeURIComponent(String(id))}`, {
+    method: "PUT",
+    body: JSON.stringify(position),
+  });
+}
+
+export function deletePosition(id: Position["id"]) {
+  return apiRequest<unknown>(`/positions/${encodeURIComponent(String(id))}`, {
+    method: "DELETE",
+  });
 }
